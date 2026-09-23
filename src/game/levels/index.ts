@@ -1,7 +1,19 @@
 import type { LevelDef } from './types';
 import { testLevel } from './testLevel';
+import { darkSoulsLevel } from './darkSouls';
+import { seriousSamLevel } from './seriousSam';
+import { neverhoodLevel } from './neverhood';
+import { halfLifeLevel } from './halfLife';
+import { sekiroLevel } from './sekiro';
 
-export const LEVELS: LevelDef[] = [testLevel];
+export const LEVELS: LevelDef[] = [
+  testLevel,
+  darkSoulsLevel,
+  seriousSamLevel,
+  neverhoodLevel,
+  halfLifeLevel,
+  sekiroLevel,
+];
 
 export function getLevel(id: string): LevelDef {
   const lvl = LEVELS.find((l) => l.id === id);

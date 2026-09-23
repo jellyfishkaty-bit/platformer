@@ -88,13 +88,20 @@ export function generatePlayerTextures(scene: Phaser.Scene) {
 // --- Hearts & pickups ---
 
 function heartTexture(scene: Phaser.Scene, key: string, color: number, shade: number, big = false) {
-  const size = big ? 9 : 7;
+  const size = (big ? 9 : 7) + 2;
   const g = new PixelGrid(size, size);
   const rows = HEART_PATTERN;
-  const ox = big ? 1 : 0;
-  g.stamp(rows, ox, big ? 1 : 0, color);
-  // shade bottom-right lobe pixel for a bit of depth
-  g.set(ox + 4, (big ? 1 : 0) + 2, shade);
+  const ox = (big ? 1 : 0) + 1;
+  const oy = (big ? 1 : 0) + 1;
+  // dark outline so pale hearts (white) still read against pale backgrounds
+  [
+    [-1, 0],
+    [1, 0],
+    [0, -1],
+    [0, 1],
+  ].forEach(([dx, dy]) => g.stamp(rows, ox + dx, oy + dy, 0x1a1218));
+  g.stamp(rows, ox, oy, color);
+  g.set(ox + 4, oy + 2, shade);
   g.toTexture(scene, key, big ? ICON_PX : ICON_PX + 1);
 }
 

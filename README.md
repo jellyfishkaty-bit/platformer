@@ -1,32 +1,58 @@
-# React + TypeScript + Vite
+# Геймер — пиксельный платформер
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Офлайн 2D-платформер (React + TypeScript + Vite + Phaser + Tailwind). Играем за
+персонажа-геймера, попавшего внутрь виртуального мира: шесть уровней, каждый
+стилизован под культовую игру (Dark Souls, Serious Sam, Neverhood, Half-Life,
+Sekiro), но с единой механикой — физика, прыжки, сердечки, чекпоинты одни и те
+же, меняется только оформление и один уникальный твист уровня.
 
-Currently, two official plugins are available:
+## Разработка
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev       # http://localhost:5173
+npm run build     # проверка типов + прод-сборка
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Весь пиксель-арт и звук генерируются процедурно в коде (см. `src/game/gfx` и
+`src/game/audio.ts`) — внешние ассеты не скачиваются, игра полностью офлайновая
+и без единого стороннего файла.
+
+## Структура
+
+- `src/game/scenes` — Phaser-сцены (Boot генерирует текстуры, Play — игровой цикл)
+- `src/game/entities` — Player / Enemy / Fireball
+- `src/game/levels` — данные уровней (платформы, враги, сердечки, чекпоинты)
+- `src/game/gfx` — процедурная генерация пиксель-арта (`PixelGrid`) и палитры тем
+- `src/game/audio.ts` — синтезированная музыка/SFX на WebAudio
+- `src/state/progress.ts` — сохранение в localStorage (монеты, прокачка, прогресс)
+- `src/ui` — React/Tailwind экраны: меню, выбор уровня, прокачка, HUD, touch-controls
+
+## Сборка APK (Capacitor)
+
+Проект Android уже сгенерирован (`npx cap add android` выполнен, см. папку
+`android/`). Дальнейшие шаги:
+
+```bash
+npm run cap:sync      # сборка веб-версии + синхронизация в android/
+npm run android:open  # открыть проект в Android Studio
+# или собрать APK из терминала:
+npm run android:apk   # соберёт android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+**Важно:** сборка и тестирование APK на телефоне не были выполнены в этой
+сессии — в текущем окружении нет установленного Android SDK, а Maven-репозиторий
+Google (`dl.google.com`) недоступен через сетевой прокси песочницы (403). Нужно
+запустить `android:apk`/`android:open` в окружении с Android Studio/SDK и
+пройти игру на реальном устройстве, особенно отзывчивость touch-controls —
+это explicitly требуется техзаданием и не может быть проверено без физического
+телефона.
+
+## Известные ограничения MVP
+
+- Арт и звук — процедурные (не наборы с Kenney.nl/itch.io/OpenGameArt), чтобы
+  не тратить время на лицензионный ревью и скачивание — при желании их легко
+  заменить, структура кода это допускает (текстуры генерируются по ключу в
+  `generateAllTextures`, звук — в `audio.ts`).
+- Файербол активен до конца уровня после подбора цветка (не ограничен по
+  числу бросков — так проще и honest с точки зрения баланса MVP).
